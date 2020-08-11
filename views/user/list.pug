@@ -1,0 +1,9 @@
+extend ../layout.pug
+
+block content
+  h1 用户列表
+  p 点击下方用户查看他们的宠物
+  ul
+    each val in users
+      li
+        a(href="#")= val.name
