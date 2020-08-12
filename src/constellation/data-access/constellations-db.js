@@ -44,6 +44,10 @@ module.exports = function makeConstellationsDb ({ makeDb }) {
         oDate = data.date
         nDate = Number(new Date().toISOString().slice(0, 10).replace(/-/g,'')) + 1
         break
+      case 'week':
+        oDate = data.weekth
+        nDate = getWeekOfYear()
+        break
       case 'month':
         oDate = data.month
         nDate = new Date().getMonth() + 1
@@ -55,6 +59,7 @@ module.exports = function makeConstellationsDb ({ makeDb }) {
       default:
         throw new Error('unknown')
     }
+    console.log('compare: ', oDate, nDate)
     return oDate !== nDate
   }
 
@@ -68,5 +73,17 @@ module.exports = function makeConstellationsDb ({ makeDb }) {
     })
     console.log(`type: ${type}, consName: ${consName} ; 请求数据结果：`, data)
     return data
+  }
+
+  // 参考：https://blog.csdn.net/ziwen00/article/details/12579305
+  function getWeekOfYear () {
+    let time, week
+    const checkDate = new Date()
+    checkDate.setDate(checkDate.getDate() + 4 - (checkDate.getDay() || 7))
+    time = checkDate.getTime()
+    checkDate.setMonth(0)
+    checkDate.setDate(1)
+    week = Math.floor(Math.round((time -checkDate) / 86400000) / 7) + 1
+    return week
   }
 }

@@ -17,9 +17,9 @@ module.exports = function makeListConstellations ({ constellationsDb }) {
         success: true,
         message: 'passed'
       }
-      if (!~['today', 'tomorrow', 'month', 'year'].indexOf(type)) {
+      if (!~['today', 'tomorrow', 'week', 'month', 'year'].indexOf(type)) {
         result.success = false
-        result.message = `['today', 'tomorrow', 'month', 'year'] 为 type 类型的其中一个`
+        result.message = `['today', 'week', 'tomorrow', 'month', 'year'] 为 type 类型的其中一个`
       }
       if (!~['摩羯座', '水瓶座', '双鱼座', '白羊座', '金牛座', '双子座', '巨蟹座', '狮子座', '处女座', '天秤座', '射手座', '天蝎座'].indexOf(consName)) {
         result.success = false
