@@ -1,28 +1,28 @@
-module.exports = function makeGetConstellations ({ listConstellations }) {
+function makeGetConstellations ({ listConstellations }) {
+  const headers = {
+    'Content-Type': 'application/json'
+  }
   return async function getConstellations (httpRequest) {
-    const headers = {
-      'Content-Type': 'application/json'
-    }
     try {
-      const postConstellations = await listConstellations({
-        consName: httpRequest.query.consName,
-        type: httpRequest.query.type
-      })
+      const { consName, type } = httpRequest.query
+      const constellationInfo = await listConstellations({ consName, type })
       return {
         headers,
         statusCode: 200,
-        body: postConstellations
+        body: constellationInfo
       }
-    } catch (e) {
-      // TODO
-      console.log(e)
+    }
+    catch (error) {
+      console.error(`getConstellations 获取数据失败 e: ${error}`)
       return {
         headers,
         statusCode: 400,
         body: {
-          error: e.message
+          error: error.message
         }
       }
     }
   }
 }
+
+module.exports = makeGetConstellations

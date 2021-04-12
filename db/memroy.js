@@ -1,6 +1,6 @@
 const clientStorage = new Map()
 
-exports.buildMakeDb = function ({ dbName }) {
+function buildMakeDb ({ dbName }) {
   let dbClient
   if (clientStorage.has(dbName)) {
     dbClient = clientStorage.get(dbName)
@@ -12,4 +12,8 @@ exports.buildMakeDb = function ({ dbName }) {
   return async function makeDb () {
     return dbClient
   }
+}
+
+module.exports = {
+  buildMakeDb
 }

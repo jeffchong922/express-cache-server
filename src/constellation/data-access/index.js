@@ -1,8 +1,8 @@
-const makeConstellationsDb = require('./constellations-db')
-const { buildMakeDb } = require('../../db/memoryDb')
+const makeConstellationsDb = require('./constellations-db'),
+      { buildMakeDb } = require('../../../db/memroy')
 
-const dbName = 'constellation'
-const makeDb = buildMakeDb({ dbName })
+const dbName = 'constellation',
+      makeDb = buildMakeDb({ dbName })
 
 const constellationsDb = makeConstellationsDb({ makeDb })
 module.exports = constellationsDb

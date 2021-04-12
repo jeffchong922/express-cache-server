@@ -1,66 +1,72 @@
-const axios = require('axios')
-const { CONSTELLATION_API_URL, CONSTELLATIONS_APP_KEY } = require('../../helpers/secrets')
+const axios = require('axios'),
+      { CONSTELLATION_API_URL, CONSTELLATIONS_APP_KEY } = require('../../../config/secrets')
 
 // db 为 Map 类型，使用内存存储数据
-module.exports = function makeConstellationsDb ({ makeDb }) {
+function makeConstellationsDb ({ makeDb }) {
   return Object.freeze({
-    findByType
+    find
   })
 
-  async function findByType ({ type, consName }) {
+  async function find ({ type, consName }) {
     const db = await makeDb()
-    let typeMap = db.get(type)
-    // 从网络获取数据
-    if (!typeMap) {
-      typeMap = new Map()
-      db.set(type, typeMap)
-    }
+
+    /**
+     * {
+     *    'today': { 星座: 数据 },
+     *    ...
+     * }
+     */
+
+    let typeMap = db.get(type) || new Map()
+    db.set(type, typeMap)
+
     if (!typeMap.get(consName)) {
       const data = await fetchConstellations({ type, consName })
       if ((typeof data.error_code !== 'undefined') && (data.error_code === 0)) {
         typeMap.set(consName, data)
       }
     }
-    const oldData = typeMap.get(consName)
-    if (oldData && isNeedToUpdate(type, oldData)) {
+
+    const prev = typeMap.get(consName)
+    if (prev && isNeedToUpdate(type, prev)) {
       const data = await fetchConstellations({ type, consName })
       if ((typeof data.error_code !== 'undefined') && (data.error_code === 0)) {
         typeMap.set(consName, data)
       }
     }
+
     return typeMap.get(consName) || null
   }
 
-  // 只为当前数据而用
   function isNeedToUpdate (type, data) {
-    let oDate
-    let nDate = Date.now()
+    let prevDate
+    let curDate = Date.now()
     switch (type) {
       case 'today':
-        oDate = data.date
-        nDate = Number(new Date().toISOString().slice(0, 10).replace(/-/g,''))
+        prevDate = data.date
+        curDate = Number(new Date().toISOString().slice(0, 10).replace(/-/g,''))
         break
       case 'tomorrow':
-        oDate = data.date
-        nDate = Number(new Date().toISOString().slice(0, 10).replace(/-/g,'')) + 1
+        prevDate = data.date
+        curDate = Number(new Date().toISOString().slice(0, 10).replace(/-/g,'')) + 1
         break
       case 'week':
-        oDate = data.weekth
-        nDate = getWeekOfYear()
+        prevDate = data.weekth
+        curDate = getWeekOfYear()
         break
       case 'month':
-        oDate = data.month
-        nDate = new Date().getMonth() + 1
+        prevDate = data.month
+        curDate = new Date().getMonth() + 1
         break
       case 'year':
-        oDate = data.year
-        nDate = new Date().getFullYear()
+        prevDate = data.year
+        curDate = new Date().getFullYear()
         break
       default:
-        throw new Error('unknown')
+        throw new Error(`isNeedToUpdate unknown type: ${type}`)
     }
-    console.log('compare: ', oDate, nDate)
-    return oDate !== nDate
+    console.log('isNeedToUpdate compare: ', prevDate, curDate)
+    return prevDate !== curDate
   }
 
   async function fetchConstellations ({ consName, type }) {
@@ -71,7 +77,7 @@ module.exports = function makeConstellationsDb ({ makeDb }) {
         key: CONSTELLATIONS_APP_KEY
       }
     })
-    console.log(`type: ${type}, consName: ${consName} ; 请求数据结果：`, data)
+    console.log(`type: ${type}, consName: ${consName} ; fetchConstellations 请求数据结果：`, data)
     return data
   }
 
@@ -87,3 +93,5 @@ module.exports = function makeConstellationsDb ({ makeDb }) {
     return week
   }
 }
+
+module.exports = makeConstellationsDb

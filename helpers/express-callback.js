@@ -1,4 +1,4 @@
-module.exports = function makeExpressCallback (controller) {
+function makeExpressCallback (controller) {
   return (req, res) => {
     const httpRequest = {
       body: req.body,
@@ -25,3 +25,5 @@ module.exports = function makeExpressCallback (controller) {
       .catch(e => res.status(500).send({ error: '发生了未知错误.' }))
   }
 }
+
+module.exports = makeExpressCallback
